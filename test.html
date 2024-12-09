@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>D3.js 散點圖</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div id="chart"></div>
+    <script>
+        // 設置圖表尺寸和邊距
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = 800 - margin.left - margin.right;
+        const height = 600 - margin.top - margin.bottom;
+
+        // 創建SVG元素
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // 定義數據
+        const data = [
+            {group: "S9", x: 50, y: 300},
+            {group: "S5", x: 100, y: 400},
+            {group: "A15", x: 150, y: 350},
+            {group: "A1", x: 200, y: 450},
+            // ... 可以添加更多數據點
+        ];
+
+        // 定義顏色比例尺
+        const color = d3.scaleOrdinal()
+            .domain(["S9", "S5", "A15", "A1"])
+            .range(["orange", "red", "lightblue", "purple"]);
+
+        // 創建X軸比例尺
+        const x = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.x)])
+            .range([0, width]);
+
+        // 創建Y軸比例尺
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.y)])
+            .range([height, 0]);
+
+        // 添加X軸
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+
+        // 添加Y軸
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        // 添加網格線
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("stroke", "lightgray")
+            .attr("stroke-opacity", 0.7)
+            .call(d3.axisRight(y)
+                .tickSize(width)
+                .tickFormat("")
+            )
+            .call(g => g.select(".domain").remove());
+
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("stroke", "lightgray")
+            .attr("stroke-opacity", 0.7)
+            .call(d3.axisBottom(x)
+                .tickSize(height)
+                .tickFormat("")
+            )
+            .call(g => g.select(".domain").remove());
+
+        // 添加散點
+        svg.selectAll("circle")
+            .data(data)
+            .join("circle")
+            .attr("cx", d => x(d.x))
+            .attr("cy", d => y(d.y))
+            .attr("r", 5)
+            .style("fill", d => color(d.group));
+    </script>
+</body>
+</html>
